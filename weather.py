@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
-CACHE_FILE = os.path.join(os.path.dirname(__file__), 'cache_json')
+CACHE_FILE = "/tmp/cache_json" if os.getenv("VERCEL") else os.path.join(os.path.dirname(__file__), 'cache_json')
 DEFAULT_TTL = 600
 
 def _load_cache() -> dict:
