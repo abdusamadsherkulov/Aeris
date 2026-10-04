@@ -1,6 +1,6 @@
 # server.py
 from flask import Flask, jsonify, request, send_from_directory
-from weather import get_current_weather, get_forecast
+from weather import get_current_weather, get_forecast, API_KEY, _request
 
 app = Flask(__name__, static_folder="public", static_url_path="")
 
@@ -46,6 +46,24 @@ def api_weather():
     forecast = [{k: v for k, v in d.items() if k != "raw"} for d in fc]
     return jsonify(current=current, forecast=forecast, units=units)
 
-
+@app.get("/api/suggest")
+def api_suggest():
+    q = request.args.get("q", "").strip()
+    if len(q) < 2 or not API_KEY:
+        return jsonify([])
+    try:
+        data = _request("https://api.openweathermap.org/geo/1.0/direct",
+                        {"q": q, "limit": 5, "appid": API_KEY}, timeout=5)
+    except RuntimeError:
+        return jsonify([])
+    seen, out = set(), []
+    for p in data:
+        key = (p.get("name"), p.get("state"), p.get("country"))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({"name": p["name"], "state": p.get("state", ""), "country": p.get("country", "")})
+    return jsonify(out)
+        
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
