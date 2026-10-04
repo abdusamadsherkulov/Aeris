@@ -301,4 +301,44 @@ document.querySelectorAll('.seg button').forEach((b) => {
 });
 function syncUnits() { document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.u === state.units)); }
 
+/* ===== autocomplete ===== */
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const sug = $('#suggest'), input = $('#cityInput');
+let sugItems = [], sugIdx = -1, sugTimer, sugReq = 0;
+
+function closeSug() { sug.classList.remove('open'); sugItems = []; sugIdx = -1; }
+function renderSug() {
+  if (!sugItems.length) return closeSug();
+  sug.innerHTML = sugItems.map((s, i) =>
+    `<li data-i="${i}" class="${i === sugIdx ? 'on' : ''}">${esc(s.name)}<span>${esc([s.state, s.country].filter(Boolean).join(', '))}</span></li>`).join('');
+  sug.classList.add('open');
+}
+function pick(i) {
+  const s = sugItems[i]; input.value = ''; closeSug(); input.blur();
+  load(`${s.name},${s.country}`);
+}
+input.addEventListener('input', () => {
+  clearTimeout(sugTimer);
+  const q = input.value.trim();
+  if (q.length < 2) return closeSug();
+  sugTimer = setTimeout(async () => {
+    const id = ++sugReq;
+    try {
+      const list = await (await fetch(`/api/suggest?q=${encodeURIComponent(q)}`)).json();
+      if (id !== sugReq) return;
+      sugItems = list; sugIdx = -1; renderSug();
+    } catch { closeSug(); }
+  }, 250);
+});
+input.addEventListener('keydown', (e) => {
+  if (!sug.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); sugIdx = (sugIdx + 1) % sugItems.length; renderSug(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); sugIdx = (sugIdx - 1 + sugItems.length) % sugItems.length; renderSug(); }
+  else if (e.key === 'Escape') closeSug();
+  else if (e.key === 'Enter' && sugIdx >= 0) { e.preventDefault(); pick(sugIdx); }
+});
+sug.addEventListener('mousedown', (e) => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
+input.addEventListener('blur', () => setTimeout(closeSug, 120));
+$('#searchForm').addEventListener('submit', () => { clearTimeout(sugTimer); sugReq++; closeSug(); });
+
 syncUnits(); renderRecent(); load(state.city);
