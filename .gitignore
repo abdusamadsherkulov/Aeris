@@ -3,3 +3,4 @@ cache.json
 venv/
 __pycache__/
 *.pyc
+cache_json
