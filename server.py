@@ -2,12 +2,12 @@
 from flask import Flask, jsonify, request, send_from_directory
 from weather import get_current_weather, get_forecast
 
-app = Flask(__name__, static_folder="web", static_url_path="")
+app = Flask(__name__, static_folder="public", static_url_path="")
 
 
 @app.get("/")
 def index():
-    return send_from_directory("web", "index.html")
+        return send_from_directory("public", "index.html")
 
 
 @app.get("/api/weather")
