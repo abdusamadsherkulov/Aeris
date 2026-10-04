@@ -317,19 +317,36 @@ function pick(i) {
   const s = sugItems[i]; input.value = ''; closeSug(); input.blur();
   load(`${s.name},${s.country}`);
 }
+const sugCache = new Map();
+async function fetchSug(q) {
+  const key = q.toLowerCase();
+  if (sugCache.has(key)) return sugCache.get(key);
+  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
+  const j = await r.json();
+  const seen = new Set();
+  const list = (j.results || [])
+    .map((p) => ({ name: p.name, state: p.admin1 || '', country: p.country_code || '' }))
+    .filter((s) => { const k = s.name + s.state + s.country; return seen.has(k) ? false : seen.add(k); });
+  sugCache.set(key, list);
+  return list;
+}
+
 input.addEventListener('input', () => {
   clearTimeout(sugTimer);
   const q = input.value.trim();
   if (q.length < 2) return closeSug();
+  const hit = sugCache.get(q.toLowerCase());
+  if (hit) { sugReq++; sugItems = hit; sugIdx = -1; return renderSug(); }
   sugTimer = setTimeout(async () => {
     const id = ++sugReq;
     try {
-      const list = await (await fetch(`/api/suggest?q=${encodeURIComponent(q)}`)).json();
+      const list = await fetchSug(q);
       if (id !== sugReq) return;
       sugItems = list; sugIdx = -1; renderSug();
     } catch { closeSug(); }
-  }, 250);
+  }, 100);
 });
+
 input.addEventListener('keydown', (e) => {
   if (!sug.classList.contains('open')) return;
   if (e.key === 'ArrowDown') { e.preventDefault(); sugIdx = (sugIdx + 1) % sugItems.length; renderSug(); }
@@ -337,6 +354,7 @@ input.addEventListener('keydown', (e) => {
   else if (e.key === 'Escape') closeSug();
   else if (e.key === 'Enter' && sugIdx >= 0) { e.preventDefault(); pick(sugIdx); }
 });
+
 sug.addEventListener('mousedown', (e) => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
 input.addEventListener('blur', () => setTimeout(closeSug, 120));
 $('#searchForm').addEventListener('submit', () => { clearTimeout(sugTimer); sugReq++; closeSug(); });
