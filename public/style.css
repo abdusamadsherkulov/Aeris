@@ -53,6 +53,17 @@ body::before { content: ''; position: fixed; inset: 0; z-index: -1; background: 
   background: rgba(8,14,34,.28); border: 1px solid var(--line);
   backdrop-filter: blur(14px); transition: border-color .2s, box-shadow .2s;
 }
+.search { position: relative; z-index: 20; }
+.suggest {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0; margin: 0; padding: 6px; list-style: none; display: none;
+  background: rgba(10,16,38,.85); border: 1px solid var(--line); border-radius: 18px;
+  backdrop-filter: blur(18px); box-shadow: 0 14px 40px rgba(0,0,0,.35);
+}
+.suggest.open { display: block; }
+.suggest li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 14px; }
+.suggest li span { color: var(--muted); font-size: 12px; align-self: center; }
+.suggest li.on, .suggest li:hover { background: rgba(255,255,255,.16); }
+
 .search:focus-within { border-color: rgba(255,255,255,.5); box-shadow: 0 0 0 4px rgba(255,255,255,.1); }
 .search input { flex: 1; background: none; border: 0; outline: 0; color: #fff; font: inherit; font-size: 15px; padding: 10px 0; }
 .search input::placeholder { color: rgba(255,255,255,.55); }
