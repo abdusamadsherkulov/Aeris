@@ -154,7 +154,15 @@ h1 { margin: 0; font-size: clamp(30px, 5vw, 44px); font-weight: 600; letter-spac
 .range { position: relative; height: 6px; margin: 10px 14px 0; border-radius: 99px; background: rgba(255,255,255,.16); }
 .range i { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #7dd3fc, #fbbf24); }
 
-footer { text-align: center; margin-top: 28px; font-size: 12px; color: var(--muted); }
+footer { line-height: 2.4; }
+footer a {
+  display: inline-block; padding: 3px 12px; margin: 0 2px;
+  color: #fff; font-weight: 600; text-decoration: none;
+  background: rgba(255,255,255,.12); border: 1px solid var(--line);
+  border-radius: 999px; backdrop-filter: blur(10px);
+  transition: background .2s, transform .2s;
+}
+footer a:hover { background: rgba(255,255,255,.26); transform: translateY(-2px); }
 
 .toast {
   position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 30px); opacity: 0; z-index: 5;
