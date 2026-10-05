@@ -154,6 +154,15 @@ h1 { margin: 0; font-size: clamp(30px, 5vw, 44px); font-weight: 600; letter-spac
 .range { position: relative; height: 6px; margin: 10px 14px 0; border-radius: 99px; background: rgba(255,255,255,.16); }
 .range i { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #7dd3fc, #fbbf24); }
 
+footer {
+  text-align: center;
+  margin: 56px auto 0;
+  padding-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
 footer a {
   color: #fff;
   font-weight: 600;
